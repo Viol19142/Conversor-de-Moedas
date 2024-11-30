@@ -1,32 +1,33 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="16dp">
 
     <TextView
         android:id="@+id/tv_balance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Saldo: R$ 0.00"
+        android:text="Saldo em R$: 0.00"
         android:textSize="20sp"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/btn_deposit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Depositar R$"/>
+        android:text="Depositar R$" />
 
     <Button
         android:id="@+id/btn_list_resources"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Listar Recursos"/>
+        android:text="Listar Recursos" />
 
     <Button
         android:id="@+id/btn_convert_resources"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Converter Recursos"/>
+        android:text="Converter Recursos" />
 </LinearLayout>

@@ -1,36 +1,51 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tv_available_balance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Saldo disponível: 0.00"
+        android:layout_marginBottom="8dp" />
 
     <Spinner
         android:id="@+id/sp_currency_from"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
     <Spinner
         android:id="@+id/sp_currency_to"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
     <EditText
         android:id="@+id/et_amount_to_convert"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Valor para converter"
-        android:inputType="numberDecimal"/>
+        android:inputType="numberDecimal" />
 
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center" />
 
     <Button
         android:id="@+id/btn_convert"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Converter"/>
+        android:text="Converter" />
+    <Button
+        android:id="@+id/btn_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Voltar"
+        android:layout_margin="16dp"
+        />
+
 </LinearLayout>

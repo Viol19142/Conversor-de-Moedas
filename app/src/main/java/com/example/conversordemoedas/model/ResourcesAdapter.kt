@@ -10,14 +10,14 @@ class ResourcesAdapter(private val resourcesList: List<String>) :
     RecyclerView.Adapter<ResourcesAdapter.ResourcesViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ResourcesViewHolder {
-        // Infla o layout do item de recurso
+
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.activity_item_resource, parent, false)
         return ResourcesViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ResourcesViewHolder, position: Int) {
-        // Configura os dados do item
+
         val resource = resourcesList[position]
         holder.tvResource.text = resource
     }
@@ -26,7 +26,7 @@ class ResourcesAdapter(private val resourcesList: List<String>) :
         return resourcesList.size
     }
 
-    // ViewHolder que mantém a referência para a view
+
     class ResourcesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvResource: TextView = itemView.findViewById(R.id.tv_resource)
     }

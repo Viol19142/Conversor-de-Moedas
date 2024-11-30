@@ -4,16 +4,8 @@ import AwesomeApiService
 import ExchangeRate
 import android.os.Bundle
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.Spinner
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.Callback
@@ -31,6 +23,7 @@ class activity_convert_resources : AppCompatActivity() {
         val spFromCurrency: Spinner = findViewById(R.id.sp_currency_from)
         val spToCurrency: Spinner = findViewById(R.id.sp_currency_to)
         val btnConvert: Button = findViewById(R.id.btn_convert)
+        val btnBack: Button = findViewById(R.id.btn_back)
         progressBar = findViewById(R.id.progress_bar)
 
         val currencies = WalletManager.currencies.keys.toList()
@@ -47,12 +40,21 @@ class activity_convert_resources : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            if (fromCurrency == "BRL" && WalletManager.balanceInBRL < amount) {
+                Toast.makeText(this, "Saldo insuficiente em BRL!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             if (WalletManager.getCurrencyBalance(fromCurrency) < amount) {
                 Toast.makeText(this, "Saldo insuficiente!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             convertCurrency(fromCurrency, toCurrency, amount)
+        }
+
+        btnBack.setOnClickListener {
+            finish() // Volta para a tela anterior
         }
     }
 
@@ -74,8 +76,13 @@ class activity_convert_resources : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val rate = response.body()?.values?.first()?.bid?.toDouble() ?: 0.0
                     val convertedAmount = amount * rate
-                    WalletManager.updateCurrency(from, WalletManager.getCurrencyBalance(from) - amount)
-                    WalletManager.updateCurrency(to, WalletManager.getCurrencyBalance(to) + convertedAmount)
+
+                    if (from == "BRL") WalletManager.balanceInBRL -= amount
+                    else WalletManager.updateCurrency(from, WalletManager.getCurrencyBalance(from) - amount)
+
+                    if (to == "BRL") WalletManager.balanceInBRL += convertedAmount
+                    else WalletManager.updateCurrency(to, WalletManager.getCurrencyBalance(to) + convertedAmount)
+
                     Toast.makeText(this@activity_convert_resources, "Conversão concluída!", Toast.LENGTH_SHORT).show()
                     finish()
                 } else {
