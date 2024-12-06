@@ -1,19 +1,21 @@
 package com.example.conversordemoedas
 
 import AwesomeApiService
-import ExchangeRate
 import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.Callback
-import retrofit2.Call
-import retrofit2.Response
 
 class activity_convert_resources : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
+    private lateinit var tvBalance: TextView
+    private lateinit var lvCurrencyBalances: ListView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,10 +27,17 @@ class activity_convert_resources : AppCompatActivity() {
         val btnConvert: Button = findViewById(R.id.btn_convert)
         val btnBack: Button = findViewById(R.id.btn_back)
         progressBar = findViewById(R.id.progress_bar)
+        tvBalance = findViewById(R.id.tv_available_balance)
+        lvCurrencyBalances = findViewById(R.id.lv_currency_balances)
+
 
         val currencies = WalletManager.currencies.keys.toList()
         spFromCurrency.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, currencies)
         spToCurrency.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, currencies)
+
+
+        updateBalanceDisplay()
+
 
         btnConvert.setOnClickListener {
             val amount = etAmount.text.toString().toDoubleOrNull()
@@ -40,11 +49,6 @@ class activity_convert_resources : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            if (fromCurrency == "BRL" && WalletManager.balanceInBRL < amount) {
-                Toast.makeText(this, "Saldo insuficiente em BRL!", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
             if (WalletManager.getCurrencyBalance(fromCurrency) < amount) {
                 Toast.makeText(this, "Saldo insuficiente!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -53,47 +57,61 @@ class activity_convert_resources : AppCompatActivity() {
             convertCurrency(fromCurrency, toCurrency, amount)
         }
 
+
         btnBack.setOnClickListener {
-            finish() // Volta para a tela anterior
+            finish()
         }
+    }
+
+    private fun updateBalanceDisplay() {
+
+        val currencyBalances = WalletManager.currencies.entries.map { "${it.key}: ${it.value}" }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, currencyBalances)
+        lvCurrencyBalances.adapter = adapter
     }
 
     private fun convertCurrency(from: String, to: String, amount: Double) {
         progressBar.visibility = View.VISIBLE
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://economia.awesomeapi.com.br/json/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        val service = retrofit.create(AwesomeApiService::class.java)
-        service.getExchangeRate("$from-$to").enqueue(object : Callback<Map<String, ExchangeRate>> {
-            override fun onResponse(
-                call: Call<Map<String, ExchangeRate>>,
-                response: Response<Map<String, ExchangeRate>>
-            ) {
-                progressBar.visibility = View.GONE
-                if (response.isSuccessful) {
-                    val rate = response.body()?.values?.first()?.bid?.toDouble() ?: 0.0
+        lifecycleScope.launch {
+            try {
+                val rate = fetchExchangeRate(from, to)
+                if (rate != null) {
                     val convertedAmount = amount * rate
 
-                    if (from == "BRL") WalletManager.balanceInBRL -= amount
-                    else WalletManager.updateCurrency(from, WalletManager.getCurrencyBalance(from) - amount)
+                    WalletManager.updateCurrency(from, WalletManager.getCurrencyBalance(from) - amount)
+                    WalletManager.updateCurrency(to, WalletManager.getCurrencyBalance(to) + convertedAmount)
 
-                    if (to == "BRL") WalletManager.balanceInBRL += convertedAmount
-                    else WalletManager.updateCurrency(to, WalletManager.getCurrencyBalance(to) + convertedAmount)
-
+                    updateBalanceDisplay()
                     Toast.makeText(this@activity_convert_resources, "Conversão concluída!", Toast.LENGTH_SHORT).show()
                     finish()
                 } else {
-                    Toast.makeText(this@activity_convert_resources, "Erro na conversão!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@activity_convert_resources, "Erro ao obter taxa de conversão!", Toast.LENGTH_SHORT).show()
                 }
-            }
-
-            override fun onFailure(call: Call<Map<String, ExchangeRate>>, t: Throwable) {
-                progressBar.visibility = View.GONE
+            } catch (e: Exception) {
                 Toast.makeText(this@activity_convert_resources, "Erro de conexão!", Toast.LENGTH_SHORT).show()
+            } finally {
+                progressBar.visibility = View.GONE
             }
-        })
+        }
+    }
+
+    private suspend fun fetchExchangeRate(from: String, to: String): Double? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val retrofit = Retrofit.Builder()
+                    .baseUrl("https://economia.awesomeapi.com.br/json/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+
+                val service = retrofit.create(AwesomeApiService::class.java)
+                val response = service.getExchangeRate("$from-$to").execute()
+                if (response.isSuccessful) {
+                    response.body()?.values?.first()?.bid?.toDouble()
+                } else null
+            } catch (e: Exception) {
+                null
+            }
+        }
     }
 }

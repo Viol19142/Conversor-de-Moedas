@@ -28,7 +28,7 @@ class activity_deposit : AppCompatActivity() {
         }
 
         btnBack.setOnClickListener {
-            finish() // Volta para a tela anterior
+            finish()
         }
     }
 }

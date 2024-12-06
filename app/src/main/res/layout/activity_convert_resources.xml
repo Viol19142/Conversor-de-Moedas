@@ -1,4 +1,5 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -8,44 +9,52 @@
         android:id="@+id/tv_available_balance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Saldo disponível: 0.00"
-        android:layout_marginBottom="8dp" />
+        android:text="Saldo disponível: R$ 0,00"
+        android:textSize="18sp"
+        android:layout_marginBottom="16dp" />
+    <ListView
+        android:id="@+id/lv_currency_balances"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <Spinner
         android:id="@+id/sp_currency_from"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp" />
 
     <Spinner
         android:id="@+id/sp_currency_to"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp" />
 
     <EditText
         android:id="@+id/et_amount_to_convert"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Valor para converter"
-        android:inputType="numberDecimal" />
-
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_gravity="center" />
+        android:hint="Digite o valor"
+        android:inputType="numberDecimal"
+        android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/btn_convert"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Converter" />
+        android:text="Converter"
+        android:layout_marginBottom="16dp" />
+
     <Button
         android:id="@+id/btn_back"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Voltar" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Voltar"
-        android:layout_margin="16dp"
-        />
-
+        android:layout_gravity="center"
+        android:visibility="gone"
+        style="?android:attr/progressBarStyleLarge" />
 </LinearLayout>
